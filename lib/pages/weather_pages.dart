@@ -55,9 +55,20 @@ class _WeatherPageState extends State<WeatherPage> {
   }
 
   Future<void> _getCurrentCity() async {
-    String city = await _weatherService.getCurrentCity();
-    _cityController.text = city; // Set city in TextField
-    await _searchWeather(); // Automatically fetch weather for the current city
+    setState(() {
+      _isLoading = true; // Show loading animation while fetching location
+    });
+
+    try {
+      String city = await _weatherService.getCurrentCity();
+      _cityController.text = city; // Set city in TextField
+      await _searchWeather(); // Automatically fetch weather for the current city
+    } catch (e) {
+      setState(() {
+        _errorMessage = "Could not determine your location.";
+        _isLoading = false; // Hide loading animation
+      });
+    }
   }
 
   Future<void> _searchWeather() async {
@@ -79,10 +90,19 @@ class _WeatherPageState extends State<WeatherPage> {
         setState(() {
           _weather = null;
           _isLoading = false; // Hide loading animation
-          _errorMessage =
-              'Unable to fetch weather. Please try again.'; // Set error message
+          if (e.toString().contains('404')) {
+            _errorMessage = "City not found. Please enter a valid city.";
+          } else {
+            _errorMessage =
+                'Unable to fetch weather. Please try again later.'; // Set error message
+          }
         });
       }
+    } else {
+      setState(() {
+        _errorMessage = "Please enter a city name.";
+        _isLoading = false; // Hide loading animation
+      });
     }
   }
 
@@ -138,7 +158,6 @@ class _WeatherPageState extends State<WeatherPage> {
                         _weather!.cityName,
                         style: const TextStyle(
                           fontSize: 47,
-                          // fontWeight: FontWeight.bold,
                         ),
                       )
                     else

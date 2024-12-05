@@ -12,11 +12,13 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Weather App',
+      title: 'Zephyr - Weather App', // Updated title for clarity
       home: const WeatherPage(), // Use const for better performance
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        // Optional: Define light and dark theme colors if needed
+        // brightness: Brightness.light, // Uncomment if you want to set the brightness
       ),
     );
   }

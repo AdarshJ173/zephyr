@@ -20,10 +20,17 @@ class WeatherService {
       if (response.statusCode == 200) {
         return Weather.fromJson(jsonDecode(response.body));
       } else {
-        throw Exception('Failed to load weather: ${response.body}');
+        // Handle specific status codes for better error messages
+        if (response.statusCode == 404) {
+          throw Exception('City not found: $cityName');
+        } else {
+          throw Exception('Failed to load weather: ${response.body}');
+        }
       }
     } catch (e) {
-      throw Exception('Error fetching weather: $e');
+      debugPrint('Error fetching weather: $e');
+      throw Exception(
+          'Error fetching weather. Please check your connection or API key.');
     }
   }
 
@@ -53,7 +60,8 @@ class WeatherService {
 
       return city;
     } catch (e) {
-      debugPrint('Automatic location detection failed or permission denied.');
+      debugPrint(
+          'Automatic location detection failed or permission denied: $e');
       return "New York"; // Fallback to default city on error.
     }
   }
