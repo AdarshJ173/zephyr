@@ -51,24 +51,6 @@ class _WeatherPageState extends State<WeatherPage> {
   void initState() {
     super.initState();
     _weatherService = WeatherService(apiKey);
-    _getCurrentCity(); // Automatically fetch current city on launch
-  }
-
-  Future<void> _getCurrentCity() async {
-    setState(() {
-      _isLoading = true; // Show loading animation while fetching location
-    });
-
-    try {
-      String city = await _weatherService.getCurrentCity();
-      _cityController.text = city; // Set city in TextField
-      await _searchWeather(); // Automatically fetch weather for the current city
-    } catch (e) {
-      setState(() {
-        _errorMessage = "Could not determine your location.";
-        _isLoading = false; // Hide loading animation
-      });
-    }
   }
 
   Future<void> _searchWeather() async {
@@ -90,8 +72,15 @@ class _WeatherPageState extends State<WeatherPage> {
         setState(() {
           _weather = null;
           _isLoading = false; // Hide loading animation
+
+          // Handle different types of errors gracefully
           if (e.toString().contains('404')) {
             _errorMessage = "City not found. Please enter a valid city.";
+          } else if (e.toString().contains('401')) {
+            _errorMessage = "Invalid API key. Please check your configuration.";
+          } else if (e.toString().contains('Network Error')) {
+            _errorMessage =
+                "Network error. Please check your internet connection.";
           } else {
             _errorMessage =
                 'Unable to fetch weather. Please try again later.'; // Set error message
